@@ -1,0 +1,39 @@
+version: '3'
+
+env:
+  DOCKER_IMAGE: andreistefanciprian/pod-labeler
+  APP_NAME: pod-labeler
+
+tasks:
+
+  undeploy:
+    cmds:
+      - kubectl delete -f infra/webhook.yaml --ignore-not-found=true
+      - kubectl delete -f infra/secret.yaml --ignore-not-found=true
+      - kubectl delete -f infra/deployment.yaml --ignore-not-found=true
+      - kubectl delete -f infra/test-pod.yaml --ignore-not-found=true
+
+  build:
+    cmds:
+      - docker build -t {{.DOCKER_IMAGE}} . -f infra/Dockerfile
+      - docker image push {{.DOCKER_IMAGE}}
+
+  template:
+    cmds:
+      - sed -e 's@${LATEST_DIGEST}@'{{.IMAGE_DIGEST}}'@g' <"infra/deployment_template.yaml" > infra/deployment.yaml
+
+  deploy:
+    cmds:
+      - kubectl apply -f infra/webhook.yaml
+      - kubectl apply -f infra/secret.yaml
+      - sed -e 's@${LATEST_DIGEST}@'{{.IMAGE_DIGEST}}'@g' <"infra/deployment_template.yaml" > infra/deployment.yaml
+      - kubectl apply -f infra/deployment.yaml
+
+  check:
+    cmds:
+      - kubectl get MutatingWebhookConfigurations
+      - kubectl get pods
+      - kubectl get secrets
+vars:
+  IMAGE_DIGEST:
+    sh: docker image ls {{.DOCKER_IMAGE}} --digests | grep sha256 | awk '{print $3}' | head -n 1
