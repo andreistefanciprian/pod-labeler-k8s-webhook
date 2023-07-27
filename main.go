@@ -145,7 +145,7 @@ func HandleMutate(w http.ResponseWriter, r *http.Request) {
 
 	var patches []patchOperation
 	labels := pod.ObjectMeta.Labels
-	labels["app"] = "auto-labeled"
+	labels["webhook"] = "auto-labeled"
 	patches = append(patches, patchOperation{
 		Op:    "add",
 		Path:  "/metadata/labels",

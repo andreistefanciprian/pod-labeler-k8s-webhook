@@ -3,7 +3,7 @@
 ## Overview
 
 This project implements a Kubernetes MutatingAdmissionWebhook, serving as an [admission controller](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/) in the Kubernetes cluster. 
-The webhook intercepts Pod creation requests and automatically adds an extra label to Pods (eg: ```app=auto-labeled```) if their target namespace has the label ```pod-labeler=enabled```.
+The webhook intercepts Pod creation requests and automatically adds an extra label to Pods (eg: ```webhook=auto-labeled```) if their target namespace has the label ```pod-labeler=enabled```.
 
 Additionally, the webhook code can be easily modified to perform various other changes to Pod objects, such as altering their names, adding security parameters or injecting a sidecar.
 
