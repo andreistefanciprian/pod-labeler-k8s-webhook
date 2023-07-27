@@ -8,9 +8,13 @@ webhooks:
       - "v1beta1"
     sideEffects: "None"
     timeoutSeconds: 30
-    objectSelector:
-      matchLabels:
-        pod-labeler-enabled: "true"
+    namespaceSelector:
+      matchExpressions:
+      - key: pod-labeler
+        operator: In
+        values:
+        - enabled
+    objectSelector: {}
     clientConfig:
       service:
         name: pod-labeler
