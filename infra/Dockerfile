@@ -12,8 +12,8 @@ GOARCH=386
 RUN go build -a -o pod-labeler
 
 ## Deploy
-# FROM gcr.io/distroless/base-debian11
-FROM alpine
+FROM gcr.io/distroless/base-debian11
+# FROM alpine
 
 COPY --from=build /app/pod-labeler .
 
