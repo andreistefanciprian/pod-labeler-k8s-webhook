@@ -38,9 +38,9 @@ Before deploying the webhook, you need to generate TLS certificates using cfssl.
    infra/pod-labeler-csr.json | cfssljson -bare infra/pod-labeler
    ```
 
-## Create Manifests
+## Create Webhook k8s cert secret
 
-After generating the TLS certificates, create Kubernetes manifests for deploying the webhook:
+After generating the TLS certificates, create Kubernetes secret with webhook tls certs:
 
 1. Create a Kubernetes Secret to store the TLS certificates:
    ```
@@ -50,16 +50,9 @@ After generating the TLS certificates, create Kubernetes manifests for deploying
    --dry-run=client -o yaml >infra/secret.yaml
    ```
 
-2. Generate the webhook configuration manifest:
-   ```
-   # Replace ${CA_PEM_B64} in the webhook_template.yaml with base64-encoded CA certificate
-   ca_pem_b64=`openssl base64 -A <infra/ca.pem`
-   sed -e 's@${CA_PEM_B64}@'$ca_pem_b64'@g' <infra/webhook_template.yaml > infra/webhook.yaml
-   ```
-
 ## Build and Run the Webhook
 
-Build and deploy the webhook using the provided tasks:
+Build, Register, Deploy and Test the webhook using the provided tasks:
 
 1. Build and push the Docker image to the container registry:
    ```
@@ -71,17 +64,28 @@ Build and deploy the webhook using the provided tasks:
    task deploy
    ```
 
-3. Test webhook:
+3. Register webhook:
    ```
-   kubectl logs -l app=pod-labeler -f
-   kubectl apply -f infra/test.yaml
-   kubectl get pods --show-labels -n foo
+   task register
    ```
 
-4. To uninstall the webhook, run:
+4. Test webhook:
    ```
-   task undeploy
+   # check logs while creating test Pods and Deployments
+   kubectl logs -l app=pod-labeler -f
+
+   # create Pods and Deployments
+   kubectl apply -f infra/test.yaml
+   kubectl get pods,deployments --show-labels -n foo
+
+   # cleanup test pods
    kubectl delete -f infra/test.yaml
+   ```
+
+5. Unregister and Remove the webhook:
+   ```
+   task unregister
+   task undeploy
    ```
 
 Feel free to adjust the tasks and configurations as needed to fit your specific environment.

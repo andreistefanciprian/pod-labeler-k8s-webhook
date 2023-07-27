@@ -7,10 +7,8 @@ tasks:
 
   undeploy:
     cmds:
-      - kubectl delete -f infra/webhook.yaml --ignore-not-found=true
-      - kubectl delete -f infra/secret.yaml --ignore-not-found=true
-      - kubectl delete -f infra/deployment.yaml --ignore-not-found=true
-      - kubectl delete -f infra/test-pod.yaml --ignore-not-found=true
+      - kubectl -n default delete -f infra/secret.yaml --ignore-not-found=true
+      - kubectl -n default delete -f infra/deployment.yaml --ignore-not-found=true
 
   build:
     cmds:
@@ -21,18 +19,30 @@ tasks:
     cmds:
       - sed -e 's@${LATEST_DIGEST}@'{{.IMAGE_DIGEST}}'@g' <"infra/deployment_template.yaml" > infra/deployment.yaml
 
+
   deploy:
     cmds:
-      - kubectl apply -f infra/webhook.yaml
-      - kubectl apply -f infra/secret.yaml
+      - kubectl apply -f infra/secret.yaml -n default 
       - sed -e 's@${LATEST_DIGEST}@'{{.IMAGE_DIGEST}}'@g' <"infra/deployment_template.yaml" > infra/deployment.yaml
-      - kubectl apply -f infra/deployment.yaml
+      - kubectl apply -f infra/deployment.yaml -n default 
+  
+  register:
+    cmds:
+      - sed -e "s#\${CA_PEM_B64}#{{.CA_PEM_B64}}#g" < infra/webhook_template.yaml > infra/webhook.yaml
+      - kubectl apply -f infra/webhook.yaml
+
+  unregister:
+    cmds:
+      - kubectl delete -f infra/webhook.yaml --ignore-not-found=true
 
   check:
     cmds:
       - kubectl get MutatingWebhookConfigurations
       - kubectl get pods
       - kubectl get secrets
+      
 vars:
   IMAGE_DIGEST:
     sh: docker image ls {{.DOCKER_IMAGE}} --digests | grep sha256 | awk '{print $3}' | head -n 1
+  CA_PEM_B64:
+    sh: openssl base64 -A < infra/ca.pem
