@@ -1,8 +1,17 @@
 # Kubernetes Webhook for Modifying Pod API Requests
 
-## Description
+## Overview
 
-This project aims to create a Kubernetes webhook that intercepts CREATE Pod API requests before they reach the Kubernetes API server. The webhook then modifies these requests by adding a new label to the Pods.
+This project implements a Kubernetes MutatingAdmissionWebhook, which acts as an [admission controller](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/) in the Kubernetes cluster. The MutatingAdmissionWebhook intercepts incoming Pod creation API requests before persisting the object, providing an opportunity to modify the request.
+
+The primary goal of this webhook is to automatically add an additional label to Pods during creation. When a Pod creation request is made, the MutatingAdmissionWebhook checks if the target namespace has the label `pod-labeler=enabled`. If this label is present, the webhook modifies the request by adding a new label to the Pod: ```app=auto-labeled```.
+
+However, it's essential to highlight that the webhook code can be easily adapted to perform various other modifications to the Pod objects based on specific use cases. For instance, you can modify the webhook code to:
+
+- Change the Pod name based on certain rules or conventions.
+- Add security parameters, such as setting resource limits and requests for containers.
+- Change the container image registry or version to enforce security best practices.
+- Inject sidecar containers to enhance the functionality of Pods.
 
 ## Prerequisites
 
