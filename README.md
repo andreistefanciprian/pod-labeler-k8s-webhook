@@ -71,14 +71,14 @@ Build and deploy the webhook using the provided tasks:
 3. Test webhook:
    ```
    kubectl logs -l app=pod-labeler -f
-   kubectl apply -f infra/test-pod.yaml
-   kubectl get pods --show-labels
+   kubectl apply -f infra/test.yaml
+   kubectl get pods --show-labels -n foo
    ```
 
 4. To uninstall the webhook, run:
    ```
    task undeploy
-   kubectl delete -f infra/test-pod.yaml
+   kubectl delete -f infra/test.yaml
    ```
 
 Feel free to adjust the tasks and configurations as needed to fit your specific environment.
