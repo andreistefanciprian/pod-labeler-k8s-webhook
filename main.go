@@ -103,9 +103,16 @@ func HandleHealthz(w http.ResponseWriter, r *http.Request) {
 func HandleMutate(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "Failed to read request body", http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Failed to read request body: %s\n", err.Error()), http.StatusInternalServerError)
 		return
 	}
+
+	// //  Use for debug purposes when needed
+	// err = ioutil.WriteFile("/tmp/request", body, 0644)
+	// if err != nil {
+	// 	http.Error(w, fmt.Sprintf("Failed to write request body to file: %s\n", err.Error()), http.StatusInternalServerError)
+	// 	return
+	// }
 
 	var admissionReviewReq v1beta1.AdmissionReview
 	if _, _, err := universalDeserializer.Decode(body, nil, &admissionReviewReq); err != nil {
@@ -116,19 +123,25 @@ func HandleMutate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("New Admission Review Request is being processed: User: %v \t Type: %v \t Event: %v \t Name: %v \n",
-		admissionReviewReq.Request.UserInfo.Username,
-		admissionReviewReq.Request.Kind,
-		admissionReviewReq.Request.Operation,
-		admissionReviewReq.Request.Name,
-	)
-
 	var pod apiv1.Pod
 	err = json.Unmarshal(admissionReviewReq.Request.Object.Raw, &pod)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Could not unmarshal pod on admission request: %s\n", err.Error()), http.StatusInternalServerError)
 		return
 	}
+
+	// Get the pod name
+	var podName string
+	if len(pod.GetName()) > 0 {
+		podName = pod.GetName()
+	} else {
+		podName = pod.GetGenerateName()
+	}
+
+	log.Printf("New Admission Review Request is being processed: User: %v \t PodName: %v \n",
+		admissionReviewReq.Request.UserInfo.Username,
+		podName,
+	)
 
 	var patches []patchOperation
 	labels := pod.ObjectMeta.Labels
