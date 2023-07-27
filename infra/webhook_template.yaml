@@ -23,6 +23,6 @@ webhooks:
       caBundle: ${CA_PEM_B64}
     rules:
       - operations: [ "CREATE" ]
-        apiGroups: [""]
-        apiVersions: ["v1"]
-        resources: ["pods"]
+        apiGroups: ["apps", ""]
+        apiVersions: ["*"]
+        resources: ["deployments", "pods"]
