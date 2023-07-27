@@ -65,7 +65,7 @@ spec:
         # runAsUser: 1001
       containers:
       - name: pod-labeler
-        image: andreistefanciprian/pod-labeler@${LATEST_DIGEST}
+        image: andreistefanciprian/pod-labeler-k8s-webhook@${LATEST_DIGEST}
         imagePullPolicy: Always
         ports:
         - containerPort: 443

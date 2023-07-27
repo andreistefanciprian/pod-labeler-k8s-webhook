@@ -1,8 +1,7 @@
 version: '3'
 
 env:
-  DOCKER_IMAGE: andreistefanciprian/pod-labeler
-  APP_NAME: pod-labeler
+  DOCKER_IMAGE: andreistefanciprian/pod-labeler-k8s-webhook
 
 tasks:
 
