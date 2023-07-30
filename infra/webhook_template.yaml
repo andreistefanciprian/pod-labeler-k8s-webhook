@@ -20,7 +20,7 @@ webhooks:
         name: pod-labeler
         namespace: default
         path: /mutate
-      caBundle: ${CA_PEM_B64}
+      caBundle: CA_PEM_B64
     rules:
       - operations: [ "CREATE" ]
         apiGroups: ["apps", ""]
