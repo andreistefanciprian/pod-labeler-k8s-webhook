@@ -38,9 +38,9 @@ spec:
     - port: 443
       targetPort: tls
       name: application
-    - port: 8080
-      targetPort: http
-      name: healtz
+    # - port: 8080
+    #   targetPort: http
+    #   name: healtz
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -65,7 +65,7 @@ spec:
         # runAsUser: 1001
       containers:
       - name: pod-labeler
-        image: andreistefanciprian/pod-labeler-k8s-webhook@${LATEST_DIGEST}
+        image: andreistefanciprian/pod-labeler-k8s-webhook@LATEST_DIGEST
         imagePullPolicy: Always
         ports:
         - containerPort: 443
@@ -76,15 +76,12 @@ spec:
         - name: certs
           mountPath: /etc/webhook/certs/
           readOnly: true
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: http
-            # httpHeaders:
-            # - name: Custom-Header
-            #   value: Awesome
-          initialDelaySeconds: 3
-          periodSeconds: 10
+        # livenessProbe:
+        #   httpGet:
+        #     path: /healthz
+        #     port: http
+          # initialDelaySeconds: 3
+          # periodSeconds: 10
       volumes:
       - name: certs
         secret:
