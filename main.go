@@ -24,24 +24,6 @@ func main() {
 	// Parse CLI params
 	parameters := parseFlags()
 
-	// Create a new http server
-	httpMux := mux.NewRouter()
-	httpMux.HandleFunc("/healthz", HandleHealthz)
-	httpAddr := ":" + strconv.Itoa(parameters.httpPort)
-	httpServer := http.Server{
-		Addr:    httpAddr,
-		Handler: httpMux,
-	}
-
-	// Start the http server in a separate goroutine
-	go func() {
-		log.Printf("Starting http Server on port %s", httpAddr)
-		err := httpServer.ListenAndServe()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}()
-
 	// Create a new https server
 	httpsMux := mux.NewRouter()
 	httpsMux.HandleFunc("/mutate", HandleMutate)
@@ -51,24 +33,17 @@ func main() {
 		Handler: httpsMux,
 	}
 
-	// Start the https server in a separate goroutine
-	go func() {
-		log.Printf("Starting https Server on port %s", httpsAddr)
-
-		err := httpsServer.ListenAndServeTLS(parameters.certFile, parameters.keyFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}()
-
-	// Use a channel to block the main goroutine and keep the program running
-	select {}
+	// Start the https server
+	log.Printf("Starting https Server on port %s", httpsAddr)
+	err := httpsServer.ListenAndServeTLS(parameters.certFile, parameters.keyFile)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 // ServerParameters struct holds the parameters for the webhook server.
 type ServerParameters struct {
 	httpsPort int    // https server port
-	httpPort  int    // http server port
 	certFile  string // path to the x509 certificate for https
 	keyFile   string // path to the x509 private key matching `CertFile`
 }
@@ -84,7 +59,6 @@ func parseFlags() ServerParameters {
 	var parameters ServerParameters
 
 	// Define and parse CLI params using the "flag" package.
-	flag.IntVar(&parameters.httpPort, "httpPort", 8080, " Http server port (healthcheck endpoint).")
 	flag.IntVar(&parameters.httpsPort, "httpsPort", 443, " Https server port (webhook endpoint).")
 	flag.StringVar(&parameters.certFile, "tlsCertFile", "/etc/webhook/certs/tls.crt", "File containing the x509 Certificate for HTTPS.")
 	flag.StringVar(&parameters.keyFile, "tlsKeyFile", "/etc/webhook/certs/tls.key", "File containing the x509 private key to --tlsCertFile.")
@@ -143,14 +117,16 @@ func HandleMutate(w http.ResponseWriter, r *http.Request) {
 		podName,
 	)
 
+	// Construct the JSON patch operation for adding the "webhook" label
 	var patches []patchOperation
 	labels := pod.ObjectMeta.Labels
 	labels["webhook"] = "auto-labeled"
-	patches = append(patches, patchOperation{
+	patchOp := patchOperation{
 		Op:    "add",
 		Path:  "/metadata/labels",
 		Value: labels,
-	})
+	}
+	patches = append(patches, patchOp)
 
 	patchBytes, err := json.Marshal(patches)
 	if err != nil {
