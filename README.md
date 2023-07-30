@@ -15,6 +15,8 @@ Before getting started with the webhook, ensure that the following tools and res
 - **Docker**: The webhook runs as a container, so Docker is necessary.
 - **Kubernetes Cluster**: You'll need a running Kubernetes cluster where the webhook will be deployed.
 - **Go**: The webhook is written in Go.
+- **jq**: Used for parsing and manipulating JSON data in the Makefile.
+- **Makefile**: The project uses a Makefile for automation and building. Understanding Makefile syntax will help you work with the provided build and deployment scripts.
 
 ## Generate Certificates
 
@@ -38,35 +40,23 @@ Before deploying the webhook, you need to generate TLS certificates using cfssl.
    infra/pod-labeler-csr.json | cfssljson -bare infra/pod-labeler
    ```
 
-## Create Webhook k8s cert secret
-
-After generating the TLS certificates, create Kubernetes secret with webhook tls certs:
-
-1. Create a Kubernetes Secret to store the TLS certificates:
-   ```
-   kubectl create secret tls pod-labeler-tls \
-   --key=infra/pod-labeler-key.pem \
-   --cert=infra/pod-labeler.pem \
-   --dry-run=client -o yaml >infra/secret.yaml
-   ```
-
 ## Build and Run the Webhook
 
 Build, Register, Deploy and Test the webhook using the provided tasks:
 
 1. Build and push the Docker image to the container registry:
    ```
-   task build
+   make build
    ```
 
 2. Deploy the webhook to the Kubernetes cluster:
    ```
-   task deploy
+   make deploy
    ```
 
 3. Register webhook:
    ```
-   task register
+   make register
    ```
 
 4. Test webhook:
@@ -75,17 +65,15 @@ Build, Register, Deploy and Test the webhook using the provided tasks:
    kubectl logs -l app=pod-labeler -f
 
    # create Pods and Deployments
-   kubectl apply -f infra/test.yaml
-   kubectl get pods,deployments --show-labels -n foo
+   make test
 
    # cleanup test pods
-   kubectl delete -f infra/test.yaml
+   make test-clean
    ```
 
 5. Unregister and Remove the webhook:
    ```
-   task unregister
-   task undeploy
+   make clean
    ```
 
 Feel free to adjust the tasks and configurations as needed to fit your specific environment.
