@@ -13,9 +13,9 @@ Before getting started with the webhook, ensure that the following tools and res
 
 - **Docker**: The webhook runs as a container, so Docker is necessary.
 - **Kubernetes Cluster**: You'll need a running Kubernetes cluster where the webhook will be deployed.
-   - Use this [terraform code](https://github.com/andreistefanciprian/terraform-kubernetes-gke-cluster) to build a Private GKE Cluster for this purpose. Or use any local tool for building the cluster like Kind or Docker-Desktop
+   - Use my [terraform code](https://github.com/andreistefanciprian/terraform-kubernetes-gke-cluster) to build a Private GKE Cluster for this purpose. Or use Kind or Docker-Desktop to build a local cluster
 - **cert-manager**: Required for generating TLS certificates for the webhook and injecting caBundle in webhook configuration.
-   - You can install cert-manager with helm or use [my flux config](https://github.com/andreistefanciprian/flux-demo/tree/main/infra/cert-manager).
+   - You can install cert-manager with [helm](https://artifacthub.io/packages/helm/cert-manager/cert-manager) or use my [flux config](https://github.com/andreistefanciprian/flux-demo/tree/main/infra/cert-manager).
 - **Go**: The webhook is written in Go.
 - **jq**: Used for parsing and manipulating JSON data in the Makefile.
 - **Makefile**: The project uses a Makefile for automation and building. Understanding Makefile syntax will help you work with the provided build and deployment scripts.
