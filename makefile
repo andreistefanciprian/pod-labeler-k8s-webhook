@@ -11,11 +11,9 @@ template-webhook-manifest:
 	sed -e 's@LATEST_DIGEST@'"$$SHA_DIGEST"'@g' < infra/deployment_template.yaml > infra/deployment.yaml
 
 deploy: template-webhook-manifest
-	kubectl create secret tls pod-labeler-tls --key=infra/pod-labeler-key.pem --cert=infra/pod-labeler.pem -n default --dry-run=client -o yaml | kubectl apply -f -
 	kubectl apply -f infra/deployment.yaml -n default
 
 undeploy: unregister
-	kubectl delete secret pod-labeler-tls -n default --ignore-not-found=true
 	kubectl delete -f infra/deployment.yaml --ignore-not-found=true -n default
 
 template-webhook-config:
@@ -36,9 +34,8 @@ test:
 test-clean:
 	kubectl delete -f infra/test.yaml --ignore-not-found=true
 
-clean: undeploy test-clean
-	rm -f infra/deployment.yaml infra/webhook.yaml
+clean: unregister undeploy test-clean 
 
 check:
 	kubectl get MutatingWebhookConfiguration pod-labeler --ignore-not-found=true
-	kubectl get pods,secrets -n default
+	kubectl get pods,secrets,certificates -n default

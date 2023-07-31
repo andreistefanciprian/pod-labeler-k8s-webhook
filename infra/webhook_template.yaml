@@ -2,6 +2,8 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   name: pod-labeler
+  annotations:
+    cert-manager.io/inject-ca-from: default/pod-labeler # This is the cert-manager certificate name
 webhooks:
   - name: pod-labeler.default.svc.cluster.local
     admissionReviewVersions:
@@ -20,7 +22,6 @@ webhooks:
         name: pod-labeler
         namespace: default
         path: /mutate
-      caBundle: CA_PEM_B64
     rules:
       - operations: [ "CREATE" ]
         apiGroups: ["apps", ""]
