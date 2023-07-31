@@ -11,34 +11,14 @@ Additionally, the webhook code can be easily modified to perform various other c
 
 Before getting started with the webhook, ensure that the following tools and resources are available:
 
-- **cfssl**: Required for generating TLS certificates.
 - **Docker**: The webhook runs as a container, so Docker is necessary.
 - **Kubernetes Cluster**: You'll need a running Kubernetes cluster where the webhook will be deployed.
+   - Use this [terraform code](https://github.com/andreistefanciprian/terraform-kubernetes-gke-cluster) to build a Private GKE Cluster for this purpose. Or use any local tool for building the cluster like Kind or Docker-Desktop
+- **cert-manager**: Required for generating TLS certificates for the webhook and injecting caBundle in webhook configuration.
+   - You can install cert-manager with helm or use [my flux config](https://github.com/andreistefanciprian/flux-demo/tree/main/infra/cert-manager).
 - **Go**: The webhook is written in Go.
 - **jq**: Used for parsing and manipulating JSON data in the Makefile.
 - **Makefile**: The project uses a Makefile for automation and building. Understanding Makefile syntax will help you work with the provided build and deployment scripts.
-
-## Generate Certificates
-
-Before deploying the webhook, you need to generate TLS certificates using cfssl. Follow these steps:
-
-1. Generate the CA certificate:
-   ```
-   cfssl print-defaults config > infra/config.json
-   cfssl print-defaults csr > infra/csr.json
-   cfssl gencert -initca infra/csr.json | cfssljson -bare infra/ca
-   ```
-
-2. Generate TLS certificates for the webhook:
-   ```
-   cfssl gencert \
-   -ca=infra/ca.pem \
-   -ca-key=infra/ca-key.pem \
-   -config=infra/config.json \
-   -hostname="pod-labeler,pod-labeler.default.svc.cluster.local,pod-labeler.default.svc,localhost,127.0.0.1" \
-   -profile=server \
-   infra/pod-labeler-csr.json | cfssljson -bare infra/pod-labeler
-   ```
 
 ## Build and Run the Webhook
 

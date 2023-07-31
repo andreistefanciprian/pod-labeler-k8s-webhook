@@ -86,3 +86,27 @@ spec:
       - name: certs
         secret:
           secretName: pod-labeler-tls
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: port-labeler-issuer
+  namespace: default
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: pod-labeler
+  namespace: default
+  annotations:
+    cert-manager.io/allow-direct-injection: "true"
+spec:
+  dnsNames:
+  - pod-labeler.default.svc
+  - pod-labeler.default.svc.cluster.local
+  issuerRef:
+    kind: Issuer
+    name: port-labeler-issuer
+  secretName: pod-labeler-tls
