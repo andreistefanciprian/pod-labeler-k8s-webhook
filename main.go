@@ -16,8 +16,12 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 )
 
+const (
+	jsonContentType = `application/json`
+)
+
 var (
-	universalDeserializer = serializer.NewCodecFactory(runtime.NewScheme()).UniversalDeserializer()
+	deserializer = serializer.NewCodecFactory(runtime.NewScheme()).UniversalDeserializer()
 )
 
 func main() {
@@ -48,7 +52,7 @@ type ServerParameters struct {
 	keyFile   string // path to the x509 private key matching `CertFile`
 }
 
-// patchOperation struct represents a JSON patch operation used in mutating Kubernetes resources.
+// patchOperation is a JSON patch operation, see https://tools.ietf.org/html/rfc6902
 type patchOperation struct {
 	Op    string      `json:"op"`
 	Path  string      `json:"path"`
@@ -75,9 +79,21 @@ func HandleHealthz(w http.ResponseWriter, r *http.Request) {
 
 // HandleMutate is the HTTP handler function for the /mutate endpoint.
 func HandleMutate(w http.ResponseWriter, r *http.Request) {
+	// Step 1: Request validation (Valid requests are POST with Content-Type: application/json)
+	if r.Method != http.MethodPost {
+		w.Header().Set("Allow", http.MethodPost)
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to read request body: %s\n", err.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	if contentType := r.Header.Get("Content-Type"); contentType != jsonContentType {
+		http.Error(w, fmt.Sprintf("Invalid content type %s\n", contentType), http.StatusBadRequest)
 		return
 	}
 
@@ -88,8 +104,9 @@ func HandleMutate(w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 
+	// Step 2: Parse the AdmissionReview request.
 	var admissionReviewReq v1beta1.AdmissionReview
-	if _, _, err := universalDeserializer.Decode(body, nil, &admissionReviewReq); err != nil {
+	if _, _, err := deserializer.Decode(body, nil, &admissionReviewReq); err != nil {
 		http.Error(w, fmt.Sprintf("Could not deserialize request: %s\n", err.Error()), http.StatusBadRequest)
 		return
 	} else if admissionReviewReq.Request == nil {
@@ -117,6 +134,7 @@ func HandleMutate(w http.ResponseWriter, r *http.Request) {
 		podName,
 	)
 
+	// Step 3: Construct the AdmissionReview response.
 	// Construct the JSON patch operation for adding the "webhook" label
 	var patches []patchOperation
 	labels := pod.ObjectMeta.Labels
