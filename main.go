@@ -97,13 +97,6 @@ func HandleMutate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// //  Use for debug purposes when needed
-	// err = ioutil.WriteFile("/tmp/request", body, 0644)
-	// if err != nil {
-	// 	http.Error(w, fmt.Sprintf("Failed to write request body to file: %s\n", err.Error()), http.StatusInternalServerError)
-	// 	return
-	// }
-
 	// Step 2: Parse the AdmissionReview request.
 	var admissionReviewReq v1beta1.AdmissionReview
 	if _, _, err := deserializer.Decode(body, nil, &admissionReviewReq); err != nil {
@@ -129,9 +122,11 @@ func HandleMutate(w http.ResponseWriter, r *http.Request) {
 		podName = pod.GetGenerateName()
 	}
 
-	log.Printf("New Admission Review Request is being processed: User: %v \t PodName: %v \n",
+	//  Use for debug purposes when needed
+	log.Printf("New Admission Review Request is being processed: User: %v \t PodName: %v \n %+v",
 		admissionReviewReq.Request.UserInfo.Username,
 		podName,
+		string(body),
 	)
 
 	// Step 3: Construct the AdmissionReview response.
