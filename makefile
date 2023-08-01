@@ -16,12 +16,8 @@ deploy: template-webhook-manifest
 undeploy: unregister
 	kubectl delete -f infra/deployment.yaml --ignore-not-found=true -n default
 
-template-webhook-config:
-	CA_PEM_B64=$$(openssl base64 -A < infra/ca.pem); \
-	sed -e 's@CA_PEM_B64@'"$$CA_PEM_B64"'@g' < infra/webhook_template.yaml > infra/webhook.yaml
-
-register: template-webhook-config deploy
-	kubectl apply -f infra/webhook.yaml
+register: deploy
+	kubectl apply -f infra/webhook_configuration.yaml
 
 unregister:
 	kubectl delete MutatingWebhookConfigurations pod-labeler --ignore-not-found=true

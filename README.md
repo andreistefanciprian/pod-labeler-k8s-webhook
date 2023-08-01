@@ -29,17 +29,12 @@ Build, Register, Deploy and Test the webhook using the provided tasks:
    make build
    ```
 
-2. Deploy the webhook to the Kubernetes cluster:
-   ```
-   make deploy
-   ```
-
-3. Register webhook:
+2. Deploy and Register webhook:
    ```
    make register
    ```
 
-4. Test webhook:
+3. Test webhook:
    ```
    # check logs while creating test Pods and Deployments
    kubectl logs -l app=pod-labeler -f

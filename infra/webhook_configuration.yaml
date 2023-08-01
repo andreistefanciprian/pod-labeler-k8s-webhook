@@ -23,7 +23,7 @@ webhooks:
         namespace: default
         path: /mutate
     rules:
-      - operations: [ "CREATE" ]
-        apiGroups: ["apps", ""]
-        apiVersions: ["*"]
-        resources: ["deployments", "pods"]
+      - operations: [ "UPDATE" ]
+        apiGroups: [ ""]
+        apiVersions: ["v1"]
+        resources: ["pods/status"]
