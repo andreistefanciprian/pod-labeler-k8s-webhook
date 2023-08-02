@@ -1,0 +1,7 @@
+1. Display the application logs by running this command:
+kubectl logs -l app.kubernetes.io/name=pod-labeler --namespace {{ .Release.Namespace }} -f
+2. Fetch generated manifests for pod-labeler using one of these commands:
+helm get manifest pod-labeler -n default
+helm get all pod-labeler -n default
+3. Check pod-labeler was successfuly installed:
+helm list -A

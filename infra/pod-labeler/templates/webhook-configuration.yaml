@@ -1,11 +1,11 @@
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
-  name: pod-labeler
+  name: {{ include "pod-labeler.fullname" . }}
   annotations:
-    cert-manager.io/inject-ca-from: default/pod-labeler # This is the cert-manager certificate name
+    cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/{{ include "pod-labeler.fullname" . }} # This is the cert-manager certificate name
 webhooks:
-  - name: pod-labeler.default.svc.cluster.local
+  - name: {{ include "pod-labeler.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
     admissionReviewVersions:
       - "v1beta1"
     sideEffects: "None"
@@ -19,8 +19,8 @@ webhooks:
     objectSelector: {}
     clientConfig:
       service:
-        name: pod-labeler
-        namespace: default
+        name: {{ include "pod-labeler.fullname" . }}
+        namespace: {{ .Release.Namespace }}
         path: /mutate
     rules:
       - operations: [ "CREATE" ]
