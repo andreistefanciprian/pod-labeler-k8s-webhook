@@ -1,7 +1,2 @@
 .debug
-*.csr
-*.pem
-infra/secret.yaml
-infra/webhook.yaml
 infra/deployment.yaml
-*.json
