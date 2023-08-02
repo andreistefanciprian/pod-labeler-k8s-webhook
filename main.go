@@ -122,11 +122,10 @@ func HandleMutate(w http.ResponseWriter, r *http.Request) {
 		podName = pod.GetGenerateName()
 	}
 
-	//  Use for debug purposes when needed
-	log.Printf("New Admission Review Request is being processed: User: %v \t PodName: %v \n %+v",
+	// Print string(body) when you want to see the AdmissionReview in the logs
+	log.Printf("New Admission Review Request is being processed: User: %v \t PodName: %v \n",
 		admissionReviewReq.Request.UserInfo.Username,
 		podName,
-		string(body),
 	)
 
 	// Step 3: Construct the AdmissionReview response.
@@ -164,7 +163,7 @@ func HandleMutate(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	log.Printf("Updated labels for Pod %v: %v \n",
-		admissionReviewReq.Request.Name,
+		podName,
 		labels,
 	)
 	w.Write(bytes)
