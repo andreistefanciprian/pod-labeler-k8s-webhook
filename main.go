@@ -52,7 +52,7 @@ type ServerParameters struct {
 	keyFile   string // path to the x509 private key matching `CertFile`
 }
 
-// patchOperation is a JSON patch operation, see https://tools.ietf.org/html/rfc6902
+// patchOperation is a JSON patch operation, see https://jsonpatch.com/
 type patchOperation struct {
 	Op    string      `json:"op"`
 	Path  string      `json:"path"`
