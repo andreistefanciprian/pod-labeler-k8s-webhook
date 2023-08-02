@@ -7,12 +7,12 @@ on:
     branches:
       - 'main'
     paths:
-      - '!infra/chart/**'
+      - '!infra/pod-labeler/**'
       - '!README.md'
   pull_request:
     branches: [ 'main' ]
     paths:
-      - '!infra/chart/**'
+      - '!infra/pod-labeler/**'
       - '!README.md'
       - '.github/workflows/docker.yaml'
       
@@ -20,7 +20,6 @@ on:
 
 jobs:
   docker:
-    # needs: unit-test
     runs-on: ubuntu-latest
     steps:
       -
