@@ -31,13 +31,13 @@ Build, Register, Deploy and Test the webhook using the provided tasks:
 
 2. Deploy and Register webhook:
    ```
-   make register
+   make install
    ```
 
 3. Test webhook:
    ```
    # check logs while creating test Pods and Deployments
-   kubectl logs -l app=pod-labeler -f
+   kubectl logs -l app.kubernetes.io/name=pod-labeler -f
 
    # create Pods and Deployments
    make test
@@ -48,7 +48,7 @@ Build, Register, Deploy and Test the webhook using the provided tasks:
 
 5. Unregister and Remove the webhook:
    ```
-   make clean
+   make uninstall
    ```
 
 Feel free to adjust the tasks and configurations as needed to fit your specific environment.

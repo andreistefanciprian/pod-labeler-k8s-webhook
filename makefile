@@ -10,17 +10,11 @@ template-webhook-manifest:
 	SHA_DIGEST="$$(curl -s "https://registry.hub.docker.com/v2/repositories/$(DOCKER_IMAGE_NAME)/tags" | jq -r '.results | sort_by(.last_updated) | last .digest')"; \
 	sed -e 's@LATEST_DIGEST@'"$$SHA_DIGEST"'@g' < infra/deployment_template.yaml > infra/deployment.yaml
 
-deploy: template-webhook-manifest
-	kubectl apply -f infra/deployment.yaml -n default
+install:
+	helm upgrade --namespace default --install pod-labeler infra/pod-labeler --create-namespace
 
-undeploy: unregister
-	kubectl delete -f infra/deployment.yaml --ignore-not-found=true -n default
-
-register: deploy
-	kubectl apply -f infra/webhook_configuration.yaml
-
-unregister:
-	kubectl delete MutatingWebhookConfigurations pod-labeler --ignore-not-found=true
+uninstall:
+	helm uninstall pod-labeler --namespace default
 
 test:
 	kubectl apply -f infra/test.yaml
@@ -30,8 +24,9 @@ test:
 test-clean:
 	kubectl delete -f infra/test.yaml --ignore-not-found=true
 
-clean: unregister undeploy test-clean 
+clean: uninstall test-clean 
 
 check:
+	helm list -A
 	kubectl get MutatingWebhookConfiguration pod-labeler --ignore-not-found=true
 	kubectl get pods,secrets,certificates -n default
