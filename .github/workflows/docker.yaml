@@ -37,4 +37,4 @@ jobs:
         with:
           file: infra/Dockerfile
           push: true
-          tags: ${{ github.repository }}:${{ github.sha }}
+          tags: ${{ github.repository }}:${{ github.sha }}-${{ github.run_number }}
