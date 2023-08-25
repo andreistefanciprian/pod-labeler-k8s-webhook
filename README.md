@@ -7,6 +7,10 @@ The webhook intercepts Pod creation requests and automatically adds an extra lab
 
 Additionally, the webhook code can be easily modified to perform various other changes to Pod objects, such as altering their names, adding security parameters or injecting a sidecar.
 
+## Architecture
+
+![Admission Controllers and webhooks in K8s Architecture](./admission_controller.jpeg "Admission Controllers and webhooks in K8s Architecture")
+
 ## Prerequisites
 
 Before getting started with the webhook, ensure that the following tools and resources are available:
